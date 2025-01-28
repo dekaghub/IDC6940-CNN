@@ -1,0 +1,121 @@
+---
+title: "Literature Review"
+subtitle: "Summary of Papers"
+author: "Susanta Deka, Kalyani Kotti (Advisor: Dr. Cohen)"
+date: '`r Sys.Date()`'
+format:
+  html:
+    code-fold: true
+course: Capstone Projects in Data Science
+bibliography: references.bib # file contains bibtex for references
+#always_allow_html: true # this allows to get PDF with HTML features
+self-contained: true
+execute: 
+  warning: false
+  message: false
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+
+### 1. Recent advances in convolutional neural networks
+
+[link to paper](https://www.sciencedirect.com/science/article/pii/S0031320317304120)
+
+#### What is the goal of the paper?
+
+This paper looks at advances in the area of CNN and deep learning around 2017. Also some applications of it.
+
+The authors look at advancements in the different categories of works related to CNN like Layer Design, Pooling Layers, Activation Function, Loss Function, Regularization, Optimization, Fast Processing, etc.
+
+#### Why is it important?
+
+It is important because this study showcases different techniques and different aspects of CNN to researchers interested in CNN. It provides a broad overview of all the components of CNN architecture and some deep learning techniques. The paper also looks at applications of CNN which could inspire other researchers in areas outside of machine learning to apply CNN in their domain. For example, image classification for structural engineers or Pose Estimation for Genetics Researchers or Speech Processing for Criminology Researchers.
+
+#### How is it solved? - methods
+
+The authors look at a wide variety of published papers and provide details about their findings and comparisons.
+
+#### Results/limitations, if any.
+
+This is an old paper that came out almost a decade ago in 2017. While it provides a great overview of foundational information, there have been many new developments like the use of Transformers or graph based CNNs (or graphs in general), etc.
+
+
+> Gu, J., Wang, Z., Kuen, J., Ma, L., Shahroudy, A., Shuai, B., Liu, T., Wang, X., Wang, G., Cai, J., & Chen, T. (2018). Recent advances in convolutional neural networks. Pattern Recognition, 77, 354–377. https://doi.org/10.1016/j.patcog.2017.10.013
+
+
+### 2. EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks
+
+[link to paper](https://arxiv.org/abs/1905.11946)
+
+#### What is the goal of the paper?
+
+The paper provides a novel network architecture and scaling method for CNN models which results in better performance. It is achieved with the use of scaling coefficients which scale the depth, width and resolution of a (prior) CNN model uniformly based on the input. The authors also provide a new family of models called the EfficientNets which are smaller and faster compared to existing CNN models.
+
+#### Why is it important?
+
+It is important because scaling a CNN results in higher accuracy. Moreover there are many ways of scaling a CNN, most of them on a single dimension, like the depth of a model or the resolution of the images. Previously this was a manual arbitrary task, sometimes resulting in decreased performance.
+
+The authors state that it critical to scale a CNN in all dimensions uniformly (depth, width and resolution) for better effficiency. Based on their study, they found that a constant ratio can be used to do the scaling. They do so by figuring the constant coefficients using a grid search on the model.
+
+#### How is it solved? - methods
+
+Start with a baseline network and perform a small grid search to find the scaling coefficients α, β, and γ for depth, width, and resolution respectively. The compound coefficient is determined based on the hardware or compute resources available. It is an user specified quantity.
+Finally both the scaling coefficients and the compound coefficient are used to calculate the optimal depth, width and resolution for a CNN network.
+
+#### Results/limitations, if any.
+
+This paper achieved state-of-the-art results using one of their EfficientNet models beating previous methods by being smaller and faster.
+
+> Tan, M., & Le, Q. V. (2020). EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks (No. arXiv:1905.11946). arXiv. https://doi.org/10.48550/arXiv.1905.11946
+
+
+
+### 3. Skeleton Based Action Recognition Using Multi-Scale Deep CNN
+
+[link to paper](https://ieeexplore.ieee.org/abstract/document/8026282)
+
+#### Goal of the Paper:
+
+The paper explores how increasing the depth of convolutional neural networks (ConvNets) improves their accuracy in large-scale image recognition, particularly for tasks like classification and localization on ImageNet.
+
+#### Why It’s Important:
+
+ConvNets are key in computer vision, and this paper shows that deeper networks can boost performance, offering insights on designing more effective models for large-scale tasks and advancing the field.
+
+#### How It’s Solved (Methods):
+
+The authors increased the depth of ConvNets using small 3×3 convolution filters, keeping other parameters constant, and added max-pooling layers. The final architecture had multiple convolutional layers followed by fully connected layers for classification.
+
+#### Results/Limitations:
+
+Results: Deeper networks (16-19 layers) outperformed shallower ones, winning top spots in the 2014 ImageNet Challenge and performing well on other datasets.
+Limitations: The paper focuses on depth but doesn't address other factors like data augmentation or advanced optimization, and it doesn't explore how the networks scale to even larger datasets.
+
+
+### 4. Conceptual Understanding of Convolutional Neural Network- A Deep Learning Approach
+
+
+[link to paper](https://www.sciencedirect.com/science/article/pii/S1877050918308019)
+
+#### What is the goal of the paper?
+
+The paper aims to explain Convolutional Neural Networks (CNNs), focusing on their structures, common types, and how they work. It helps researchers better understand CNNs and encourages further exploration in the field.
+
+### Why is it Important?
+
+CNNs are crucial for solving complex problems in areas like image and speech recognition. They automate feature extraction, making them more efficient than traditional machine learning. Understanding CNNs is essential for those working in advanced research and applications.
+
+### How is it Solved? - Methods:
+
+The paper explains how CNNs work by describing key layers (convolution, pooling, activation, and fully connected layers) and their roles.
+It introduces popular CNN architectures like LeNet, AlexNet, and GoogleNet.
+It also covers learning algorithms like Gradient Descent and ADAM, which help train CNNs.
+
+
+### Results/Limitations:
+
+Results: The paper offers a solid theoretical understanding of CNNs, showing their benefits like fewer training parameters and better generalization.
+Limitations: It doesn't provide real-world results or compare CNNs to other models, and it briefly mentions issues like the "Dying ReLU" problem without exploring full solutions.
+
