@@ -119,3 +119,48 @@ It also covers learning algorithms like Gradient Descent and ADAM, which help tr
 Results: The paper offers a solid theoretical understanding of CNNs, showing their benefits like fewer training parameters and better generalization.
 Limitations: It doesn't provide real-world results or compare CNNs to other models, and it briefly mentions issues like the "Dying ReLU" problem without exploring full solutions.
 
+
+### 5. Conceptual Understanding of Convolutional Neural Network- A Deep Learning Approach
+
+
+[link to paper](https://link.springer.com/article/10.1007/s10462-022-10213-5)
+
+This article goes into details about the 6 typical architectures of CNN. CNNs typically have these five basic layers, the input layer, the convolution layer, the pooling layer, the FC layer and the output layer. The paper talks about how AlexNet used ReLu activation function instead of tanh to reduce computation complexity and resolve the vanishing gradient problem. Moreover, the use of Local Response Normalization (LRN) and pooling (down-sampling) were also helpful in improving performance as well as reducing overfitting. There's also mention of ZfNet or DeconvNet where researchers provided visualizations to understand the internal mechanism of a CNN architecture.
+
+The article then talks about VGG Net where CNNs are split into smaller filters (or kernels) thereby increasing the depth of the network. There's also mention of GoogLeNet and its use of multiple filters of varying sizes stacked together to extract features of different sizes. The authors mention that Batch Normalization was a major contribution with the introduction of InceptionV2 model which improved backpropagation and the gradient vanishing problem.
+
+Then there's the idea of cross-layer connection which is different from prior architectures where connections existed only between adjacent layers. ResNet implemented this cross-layer connection through shortcut connections where the input is transferred across multiple layers and then features are aggregated which improved accuracy. This is an example of widening the network which is opposite to that of deepening the network. Finally, there's info about the DenseNet which is a CNN architecture with dense connections where each layer is connected to every other layer. A bad side effect of this is that the model relearns the same features repeatedly. 
+
+The article then looks into lightweight networks which are targeted towards mobile devices or embedded devices. Lightweight CNNs are smaller CNN architectures obtained after compression and acceleration. MobileNetV3 is a lightweight CNN that decompose the convolution process into pointwise and depthwise convolution for decreasing model size as well as compute burden.
+
+The fifth type of CNN architecture deals with object detection. The article introduces Regional CNN (R-CNN) which achieve object detection through three main ideas which are region proposals, feature extraction and region classification. Inspired by this and based on GoogLeNet, there's a new detection method called the YOLO model, You Only Look Once which segments an input image into multiple bounding boxes and classifies the regions alongside the bounding boxes to detect objects.
+
+Finally the last architecture is the Transformer Encoder where the article looks into Vision Transformers (ViT). Because transformers by themselves lack spatial inductive biases which leads to poor optimization, researchers have combined CNNs and ViTs to overcome it.
+
+
+### 6. PooDLe: Pooled and dense self-supervised learning from naturalistic videos
+
+[link to paper](https://arxiv.org/abs/2408.11208)
+
+Many supervised learning methods exists which are trained on balanced datasets with human annotations. In contrast Self Supervised Learning (SSL) methods are those that tries to learn from input data without explicit supervision. PooDLe is a SSL method that learns dense visual representations from naturalistic first person videos. Natural videos are dense in information, containing multiple objects and often imbalanced, like skies dominating a nature scene or a very crowded highway scene with multiple objects.  The researchers proposed a lightweight spatial decoder module (SDM) that uses top-down decoder layers and UNet-like lateral connections to earlier encoder representations to both upsample the high level representations and resurface fine-grained details and small objects that may get lost in downsampling operations. PooDLe performs semantic information evaluation on videos. 
+
+
+### 7. Integrating Convolutional Neural Networks and Reinforcement Learning for Robotics Autonomy
+
+[link to paper](https://arxiv.org/abs/2408.11208)
+
+This research examines the integration of Convolutional Neural Networks (CNNs) and Reinforcement Learning (RL) to enhance robot autonomy in complex environments. By utilizing CNNs for perception and RL for decision-making, the study explores advancements in robot capabilities such as real-time object recognition and adaptive decision-making. Challenges like computational complexity, sample inefficiency, and generalization across environments are addressed, with solutions including model compression, transfer learning, and data augmentation.
+
+The paper highlights advancements in CNNs (e.g., ResNets, EfficientNets) and multi-modal sensory integration, improving robot vision and object tracking. RL techniques like Q-learning and Policy Gradients optimize decision-making and learning efficiency. Ethical considerations emphasize the need for safety and transparency, especially in sectors like healthcare and transportation.
+
+The study concludes that combining CNNs and RL will create more intelligent, adaptive robots capable of complex tasks with minimal human input. Future work should focus on Sim-to-Real transfer, curriculum learning, and multi-modal fusion to enhance performance and robustness.
+
+
+### 8. Applying Convolutional Neural Networks for IoT Image Recognition
+
+[link to paper](https://www.researchgate.net/publication/385439626_Applying_Convolutional_Neural_Networks_for_IoT_Image_Recognition)
+
+This article looks at how Convolutional Neural Networks (CNNs) are being used for image recognition in Internet of Things (IoT) applications, highlighting the latest progress, challenges, and possible solutions. It discusses specially designed CNN models like MobileNet, SqueezeNet, and ShuffleNet, which are optimized for IoT devices with limited resources. The paper also covers methods like model compression, pruning, quantization, and knowledge distillation to reduce the power and memory needed by these models while keeping them accurate.
+
+A major focus is on edge computing, which processes data directly on IoT devices or nearby servers instead of sending it to the cloud. This helps to lower delays, reduce bandwidth usage, and improve security. Combining edge computing with CNNs for image recognition makes IoT systems faster and more efficient, which is especially useful in areas like self-driving cars, security cameras, and healthcare. The article concludes that more research and innovation are needed to solve the challenges of IoT and enable fast, reliable image recognition in different settings.
+
