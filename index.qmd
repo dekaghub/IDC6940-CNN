@@ -34,13 +34,7 @@ writing!
 
 ## Introduction
 
-The introduction should:
-
--   Develop a storyline that captures attention and maintains interest.
-
--   Your audience is your peers
-
--   Clearly state the problem or question you're addressing.
+The receptive field of a Convolution Neural Network (CNN) is the specific region in input data that activates the neurons i.e. the features captured by a convolution layer. This region determines the level of feature extraction, or learning from the input which ultimately impacts the quality of the output. Different sizes of receptive fields may be optimal for different tasks. This also means that the effective receptive field for a given task will vary with variation in the input. For example a magnified image vs a large zoomed out scene will yield vastly different features for the same receptive field. In this study, we aim to identify the optimal sizes and combination of convolution filters for effective receptive fields for certain tasks. In other words, we want to experiment different configurations of convolutional filters and network architectures that affect the effective receptive field using different kernel sizes, strides, and depths across different datasets and tasks. With that we hope to identify generalizable principles for designing CNNs with optimal feature extraction capabilities.
 
 <!-- -->
 
