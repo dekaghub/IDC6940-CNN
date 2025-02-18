@@ -120,7 +120,7 @@ Results: The paper offers a solid theoretical understanding of CNNs, showing the
 Limitations: It doesn't provide real-world results or compare CNNs to other models, and it briefly mentions issues like the "Dying ReLU" problem without exploring full solutions.
 
 
-### 5. Conceptual Understanding of Convolutional Neural Network- A Deep Learning Approach
+### 5. A review of convolutional neural network architectures and their optimizations
 
 
 [link to paper](https://link.springer.com/article/10.1007/s10462-022-10213-5)

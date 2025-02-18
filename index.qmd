@@ -1,6 +1,6 @@
 ---
-title: "Writing a great story for data science projects - spring 2025"
-subtitle: "This is a Report Template Quarto"
+title: "Exploring the effects of Receptive Fields in CNN"
+subtitle: "Optimizing CNNs through effective receptive fields"
 author: "Susanta Deka, Kalyani Kotti (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 format:
@@ -20,39 +20,31 @@ editor:
 
 [Literature Review Log](review.html){target="_blank"}
 
-Slides: [slides.html](slides.html){target="_blank"} ( Go to `slides.qmd`
-to edit)
+Slides: [slides.html](slides.html){target="_blank"} ( Go to `slides.qmd` to edit)
 
-::: callout-important
-**Remember:** Your goal is to make your audience understand and care
-about your findings. By crafting a compelling story, you can effectively
-communicate the value of your data science project.
-
-Carefully read this template since it has instructions and tips to
-writing!
-:::
 
 ## Introduction
 
 The receptive field of a Convolution Neural Network (CNN) is the specific region in input data that activates the neurons i.e. the features captured by a convolution layer. This region determines the level of feature extraction, or learning from the input which ultimately impacts the quality of the output. Different sizes of receptive fields may be optimal for different tasks. This also means that the effective receptive field for a given task will vary with variation in the input. For example a magnified image vs a large zoomed out scene will yield vastly different features for the same receptive field. In this study, we aim to identify the optimal sizes and combination of convolution filters for effective receptive fields for certain tasks. In other words, we want to experiment different configurations of convolutional filters and network architectures that affect the effective receptive field using different kernel sizes, strides, and depths across different datasets and tasks. With that we hope to identify generalizable principles for designing CNNs with optimal feature extraction capabilities.
 
-<!-- -->
 
--   Introduce why it is relevant needs.
+## Literature Review
 
--   Provide an overview of your approach.
+The history of Convolution Neural Networks (CNN) is a rich one and one that spans multiple decades. CNNs have made much of the buzz as well as many advancements in deep learning in recent years, particularly in the domain of computer vision and image analysis. CNN architecture is heavily inspired by the biology of the visual cortex, which contains arrangements of simple and complex cells that activate based on specific subregions of the visual field, known as receptive fields (Indolia et al., 2018). Moreover, researchers Gu et al. point out about the rapid growth of annotated data and the significant improvements in the processing power of graphics processor units (GPUs) which has empowered research on convolutional neural networks even further leading to many state-of-the-art results on various tasks. (Gu et al., 2018)
 
-Example of writing including citing references:
+There are numerous models and architectures of CNN. A review article by Cong and Zhou goes into details about the 6 typical architectures of CNN. CNNs typically have these five basic layers, the input layer, the convolution layer, the pooling layer, the FC layer and the output layer. The paper talks about how AlexNet used ReLu activation function instead of tanh to reduce computation complexity and resolve the vanishing gradient problem. Moreover, the use of Local Response Normalization (LRN) and pooling (down-sampling) were also helpful in improving performance as well as reducing overfitting. There’s also mention of ZfNet or DeconvNet where researchers provided visualizations to understand the internal mechanism of a CNN architecture.
 
-*This is an introduction to ..... regression, which is a non-parametric
-estimator that estimates the conditional expectation of two variables
-which is random. The goal of a kernel regression is to discover the
-non-linear relationship between two random variables. To discover the
-non-linear relationship, kernel estimator or kernel smoothing is the
-main method to estimate the curve for non-parametric statistics. In
-kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]*. Topology can be used in machine learning [@adams2021topology]
+The article then talks about VGG Net where CNNs are split into smaller filters (or kernels) thereby increasing the depth of the network. There’s also mention of GoogLeNet and its use of multiple filters of varying sizes stacked together to extract features of different sizes. The authors mention that Batch Normalization was a major contribution with the introduction of InceptionV2 model which improved backpropagation and the gradient vanishing problem.
+
+Then there’s the idea of cross-layer connection which is different from prior architectures where connections existed only between adjacent layers. ResNet implemented this cross-layer connection through shortcut connections where the input is transferred across multiple layers and then features are aggregated which improved accuracy. This is an example of widening the network which is opposite to that of deepening the network. Finally, there’s info about the DenseNet which is a CNN architecture with dense connections where each layer is connected to every other layer. A bad side effect of this is that the model relearns the same features repeatedly.
+
+The article then looks into lightweight networks which are targeted towards mobile devices or embedded devices. Lightweight CNNs are smaller CNN architectures obtained after compression and acceleration. MobileNetV3 is a lightweight CNN that decompose the convolution process into pointwise and depthwise convolution for decreasing model size as well as compute burden.
+
+The fifth type of CNN architecture deals with object detection. The article introduces Regional CNN (R-CNN) which achieve object detection through three main ideas which are region proposals, feature extraction and region classification. Inspired by this and based on GoogLeNet, there’s a new detection method called the YOLO model, You Only Look Once which segments an input image into multiple bounding boxes and classifies the regions alongside the bounding boxes to detect objects.
+
+Finally, the last architecture is the Transformer Encoder where the article looks into Vision Transformers (ViT). Because transformers by themselves lack spatial inductive biases which leads to poor optimization, researchers have combined CNNs and ViTs to overcome it. (Cong & Zhou, 2023)
+
+
 
 *This is my work and I want to add more work...*
 
@@ -146,3 +138,11 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 -   Discuss the implications of your results.
 
 ## References
+
+Cong, S., & Zhou, Y. (2023). A review of convolutional neural network architectures and their optimizations. Artificial Intelligence Review, 56(3), 1905–1969. https://doi.org/10.1007/s10462-022-10213-5
+
+Gu, J., Wang, Z., Kuen, J., Ma, L., Shahroudy, A., Shuai, B., Liu, T., Wang, X., Wang, G., Cai, J., & Chen, T. (2018). Recent advances in convolutional neural networks. Pattern Recognition, 77, 354–377. https://doi.org/10.1016/j.patcog.2017.10.013
+
+Indolia, S., Goswami, A. K., Mishra, S. P., & Asopa, P. (2018). Conceptual Understanding of Convolutional Neural Network- A Deep Learning Approach. Procedia Computer Science, 132, 679–688. https://doi.org/10.1016/j.procs.2018.05.069
+
+
