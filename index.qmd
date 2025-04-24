@@ -188,7 +188,371 @@ improvements in lightweight CNNs, making them even more suitable for
 deployment in resource-constrained environments such as mobile devices,
 autonomous systems, and IoT applications.
 
-## Dataset
+
+## Methods
+
+The main objective of this project is to compare 3×3, 5×5, and 7×7 convolution filters within two architectures: a basic CNN-based encoder-decoder and the U-Net model [@ronnebergerUNetConvolutionalNetworks2015]. We aim to evaluate how filter size affects segmentation accuracy, training and evaluation time, and overall compute efficiency. The main machine learning task is semantic segmentation, specifically detecting lanes on a road. Unlike image classification where a label is assigned to an entire image, semantic segmentation goes a step further by classifying each pixel in the image to some class label. 
+
+Standard **convolution filters** with strides downsample an image to extract hierarchical features. This happens in the encoding phase. To restore spatial context in the decoding phase (or upsampling phase), **transposed convolution filters**, also known as *deconvolution* or *deconv layers*, are used to upsample feature maps for either reconstruction or decoding. 
+
+Semantic segmentation requires a model to output the final result in the same dimension as the input image. This means that the spatial information from the input needs to be carried over (or propagated) throughout the network. The final result is a label map or mask where different pixel values represent different class labels.
+
+The following steps outline the experimental setup:
+
+**1. Network Architecture**
+
+> 1.a CNN Encoder-Decoder
+
+![](./imgs/model_arch_cnn-encoder-decoder.png)
+
+Encoder - The encoder comprises five sequential blocks, each containing:
+
+* Strided Convolution Layers:
+
+    * Kernel size: {3×3, 5×5, 7×7} - 3 variants of the model
+
+    * Stride 2 with padding {1, 2, 3} for the 3 variants
+
+    * Channel expansion: 3→32→64→128→256→512
+
+* Batch normalization (BN) layer after each convolution followed by ReLU activation
+
+The encoder downsamples the spatial dimensions by $2^5$ (32x downscaling).
+
+Decoder - The decoder mirrors the encoder structure using transposed convolutions:
+
+* Upsampling Layers:
+
+    * Kernel-matched transposed convolutions (stride 2)
+
+    * Output padding (1) to recover original resolution
+
+    * Channel reduction: 512→256→128→64→32→3
+
+    * BN + ReLU combinations in all layers except final output
+
+* Reconstruction Layer: Final transposed convolution produces 3-channel output matching input dimensions
+    
+    
+```{python}
+#| cache: true
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class LaneDetectionCNN_3x3(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(),
+        )
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(512, 256, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, output_padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(32, 3, kernel_size=3, stride=2, padding=1, output_padding=1)
+        )
+
+        self.receptive_field_size = 63
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+    
+class LaneDetectionCNN_5x5(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.Conv2d(32, 64, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.Conv2d(64, 128, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            
+            nn.Conv2d(128, 256, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.Conv2d(256, 512, kernel_size=5, stride=2, padding=2),
+            nn.BatchNorm2d(512),
+            nn.ReLU(),
+        )
+        
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(512, 256, kernel_size=5, stride=2, padding=2, output_padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(256, 128, kernel_size=5, stride=2, padding=2, output_padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(128, 64, kernel_size=5, stride=2, padding=2, output_padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(64, 32, kernel_size=5, stride=2, padding=2, output_padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(32, 3, kernel_size=5, stride=2, padding=2, output_padding=1)
+        )
+
+        self.receptive_field_size = 119
+
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+        
+
+class LaneDetectionCNN_7x7(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.Conv2d(32, 64, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.Conv2d(64, 128, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            
+            nn.Conv2d(128, 256, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.Conv2d(256, 512, kernel_size=7, stride=2, padding=3),
+            nn.BatchNorm2d(512),
+            nn.ReLU(),
+        )
+        
+        self.decoder = nn.Sequential(
+            nn.ConvTranspose2d(512, 256, kernel_size=7, stride=2, padding=3, output_padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(256, 128, kernel_size=7, stride=2, padding=3, output_padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(128, 64, kernel_size=7, stride=2, padding=3, output_padding=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(64, 32, kernel_size=7, stride=2, padding=3, output_padding=1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(32, 3, kernel_size=7, stride=2, padding=3, output_padding=1)
+        )
+
+        self.receptive_field_size = 175
+
+    def forward(self, x):
+        x = self.encoder(x)
+        x = self.decoder(x)
+        return x
+
+def carla_lane_model(kernel_size: int):
+    """kernel_size - 3, 5, or 7"""
+    if kernel_size == 3:
+        return LaneDetectionCNN_3x3()
+    elif kernel_size == 5:
+        return LaneDetectionCNN_5x5()
+    elif kernel_size == 7:
+        return LaneDetectionCNN_7x7()
+    else:
+        raise ValueError(f"Invalid kernel size: {kernel_size}")
+```
+
+> 1.b U-Net
+
+![](./imgs/model_arch_unet.png)
+
+Encoder (Contracting Path) - The encoder consists of four sequential blocks, each containing:
+
+* Double Convolutional Layers:
+
+    * Each block applies two consecutive convolutional layers:
+
+        * Kernel size: {3×3, 5×5, 7×7} - 3 variants of the model
+
+        * Channel expansion: 3→64→128→256→512
+
+        * Feature Normalization: Batch normalization (BN) after each convolution
+
+        * Non-linear Activation: ReLU activation after each BN
+
+    * Downsampling:
+
+        * Max pooling (2×2, stride 2) after each block halves the spatial resolution
+
+The encoder downsamples the spatial dimensions by a factor of $2^4$ (16× downscaling).
+
+* Bottleneck
+
+    * Two convolutional layers (with BN and ReLU) at the bottleneck
+
+    * Channels: 512→1024
+
+Decoder (Expanding Path) - The decoder mirrors the encoder structure and restores the original resolution using:
+
+* Upsampling Layers:
+
+    * Transposed convolutions (kernel size 2×2, stride 2) double the spatial dimensions at each step
+
+    * Channel reduction: 1024→512→256→128→64
+
+* Skip Connections: At each upsampling stage, the upsampled feature map is concatenated with the corresponding encoder feature map (skip connection) for spatial context
+
+
+* Double Convolutional Layers: After concatenation, two convolutional layers (with BN and ReLU) refine the combined features
+
+Output Layer
+
+* Reconstruction Layer:
+
+    * A final 1×1 convolution layer with 64 in channels maps the features to the desired number of output channels (3 in our case)
+
+    * Produces an output with the same spatial dimensions as the input
+
+```{python}
+#| cache: true
+
+import torch
+import torch.nn as nn
+import torchvision.transforms.functional as TF
+
+class DoubleConv(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size=3):
+        super().__init__()
+        padding = kernel_size // 2
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, kernel_size, padding=padding, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x):
+        return self.conv(x)
+
+class UNet(nn.Module):
+    def __init__(self, in_channels=3, out_channels=1, features=[64, 128, 256, 512], kernel_size=3):
+        super().__init__()
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.downs = nn.ModuleList()
+        self.ups = nn.ModuleList()
+        
+        for feature in features:
+            self.downs.append(DoubleConv(in_channels, feature, kernel_size))
+            in_channels = feature
+
+        self.bottleneck = DoubleConv(features[-1], features[-1]*2, kernel_size)
+
+        for feature in reversed(features):
+            self.ups.append(nn.ConvTranspose2d(feature*2, feature, kernel_size=2, stride=2))
+            self.ups.append(DoubleConv(feature*2, feature, kernel_size))
+
+        self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
+
+    def forward(self, x):
+        skip_connections = []
+
+        for down in self.downs:
+            x = down(x)
+            skip_connections.append(x)
+            x = self.pool(x)
+
+        x = self.bottleneck(x)
+        skip_connections = skip_connections[::-1]
+
+        for idx in range(0, len(self.ups), 2):
+            x = self.ups[idx](x)
+            skip_connection = skip_connections[idx//2]
+
+            if x.shape != skip_connection.shape:
+                x = TF.resize(x, size=skip_connection.shape[2:])
+
+            x = torch.cat((skip_connection, x), dim=1)
+            x = self.ups[idx+1](x)
+
+        return self.final_conv(x)
+
+def carla_lane_unet(kernel_size=3, in_channels=3, out_channels=3):
+    """
+    U-Net lane detection with configurable kernel size.
+    
+    Args:
+        kernel_size (int): Kernel size for the convolutional layers.
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+    
+    Returns:
+        nn.Module: U-Net model for lane detection.
+    """
+    return UNet(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size)
+
+
+```
+
+
+**2. Training Configuration**
+
+All three — 3×3, 5×5, and 7×7 — convolution filter variants of both the encoder-decoder and UNet models were trained for 10 epochs. We used PyTorch dataloaders to train in batches using a batch size of 25. Given that the training set contains 3,075 samples, there were 123 batches per epoch. For the loss function, we used PyTorch’s built-in cross-entropy loss, which internally applies softmax followed by negative log likelihood (NLL). This is standard for multi-class segmentation tasks and has been used in many state-of-the-art models [@yeungUnifiedFocalLoss2022].
+
+For validation, we used the cross entropy loss function again to calculate the loss between the model’s predictions and the ground truth segmentation masks. Moreover, we also calculate the mean Intersection over Union (mIoU) and the Dice coefficient as they're both widely used metrics in segmentation. Both these metrics calculate the overlap between the predicted masks and the ground truth masks. The Dice coefficient is particularly better for segmentation tasks with class imbalance because it gives double the weight to positive overlap i.e. true positives [@katoAdaptiveTvMFDice2024]. In our case, the lane markings on a road occupy a smaller portion in the image.
+
+
+## Analysis and Results
+
+#### Dataset
 
 For this project we decided to use a dataset based on the Carla (Car Learning to Act) Driving Simulator, an open-source simulator designed for autonomous
 driving research. Carla simulates driving scenarios that are applicable for training models for tasks like lane detection, object detection, and semantic segmentation.
@@ -350,110 +714,8 @@ plt.tight_layout()
 plt.show()
 ```
 
-## Methods
 
-The main objective of this project is to compare 3×3, 5×5, and 7×7 convolution filters within two architectures: a basic CNN-based encoder-decoder and the U-Net model [@ronnebergerUNetConvolutionalNetworks2015]. We aim to evaluate how filter size affects segmentation accuracy, training and evaluation time, and overall compute efficiency. The main machine learning task is semantic segmentation, specifically detecting lanes on a road. Unlike image classification where a label is assigned to an entire image, semantic segmentation goes a step further by classifying each pixel in the image to some class label. 
-
-Standard **convolution filters** with strides downsample an image to extract hierarchical features. This happens in the encoding phase. To restore spatial context in the decoding phase (or upsampling phase), **transposed convolution filters**, also known as *deconvolution* or *deconv layers*, are used to upsample feature maps for either reconstruction or decoding. 
-
-Semantic segmentation requires a model to output the final result in the same dimension as the input image. This means that the spatial information from the input needs to be carried over (or propagated) throughout the network. The final result is a label map or mask where different pixel values represent different class labels.
-
-The following steps outline the experimental setup:
-
-**1. Network Architecture**
-
-> 1.a CNN Encoder-Decoder
-
-![](./imgs/model_arch_cnn-encoder-decoder.png)
-
-Encoder - The encoder comprises five sequential blocks, each containing:
-
-* Strided Convolution Layers:
-
-    * Kernel size: {3×3, 5×5, 7×7} - 3 variants of the model
-
-    * Stride 2 with padding {1, 2, 3} for the 3 variants
-
-    * Channel expansion: 3→32→64→128→256→512
-
-* Batch normalization (BN) layer after each convolution followed by ReLU activation
-
-The encoder downsamples the spatial dimensions by $2^5$ (32x downscaling).
-
-Decoder - The decoder mirrors the encoder structure using transposed convolutions:
-
-* Upsampling Layers:
-
-    * Kernel-matched transposed convolutions (stride 2)
-
-    * Output padding (1) to recover original resolution
-
-    * Channel reduction: 512→256→128→64→32→3
-
-    * BN + ReLU combinations in all layers except final output
-
-* Reconstruction Layer: Final transposed convolution produces 3-channel output matching input dimensions
-    
-
-> 1.b U-Net
-
-![](./imgs/model_arch_unet.png)
-
-Encoder (Contracting Path) - The encoder consists of four sequential blocks, each containing:
-
-* Double Convolutional Layers:
-
-    * Each block applies two consecutive convolutional layers:
-
-        * Kernel size: {3×3, 5×5, 7×7} - 3 variants of the model
-
-        * Channel expansion: 3→64→128→256→512
-
-        * Feature Normalization: Batch normalization (BN) after each convolution
-
-        * Non-linear Activation: ReLU activation after each BN
-
-    * Downsampling:
-
-        * Max pooling (2×2, stride 2) after each block halves the spatial resolution
-
-The encoder downsamples the spatial dimensions by a factor of $2^4$ (16× downscaling).
-
-* Bottleneck
-
-    * Two convolutional layers (with BN and ReLU) at the bottleneck
-
-    * Channels: 512→1024
-
-Decoder (Expanding Path) - The decoder mirrors the encoder structure and restores the original resolution using:
-
-* Upsampling Layers:
-
-    * Transposed convolutions (kernel size 2×2, stride 2) double the spatial dimensions at each step
-
-    * Channel reduction: 1024→512→256→128→64
-
-* Skip Connections: At each upsampling stage, the upsampled feature map is concatenated with the corresponding encoder feature map (skip connection) for spatial context
-
-
-* Double Convolutional Layers: After concatenation, two convolutional layers (with BN and ReLU) refine the combined features
-
-Output Layer
-
-* Reconstruction Layer:
-
-    * A final 1×1 convolution layer with 64 in channels maps the features to the desired number of output channels (3 in our case)
-
-    * Produces an output with the same spatial dimensions as the input
-
-**2. Training Configuration**
-
-All three — 3×3, 5×5, and 7×7 — convolution filter variants of both the encoder-decoder and UNet models were trained for 10 epochs. We used PyTorch dataloaders to train in batches using a batch size of 25. Given that the training set contains 3,075 samples, there were 123 batches per epoch. For the loss function, we used PyTorch’s built-in cross-entropy loss, which internally applies softmax followed by negative log likelihood (NLL). This is standard for multi-class segmentation tasks and has been used in many state-of-the-art models [@yeungUnifiedFocalLoss2022].
-
-For validation, we used the cross entropy loss function again to calculate the loss between the model’s predictions and the ground truth segmentation masks. Moreover, we also calculate the mean Intersection over Union (mIoU) and the Dice coefficient as they're both widely used metrics in segmentation. Both these metrics calculate the overlap between the predicted masks and the ground truth masks. The Dice coefficient is particularly better for segmentation tasks with class imbalance because it gives double the weight to positive overlap i.e. true positives [@katoAdaptiveTvMFDice2024]. In our case, the lane markings on a road occupy a smaller portion in the image.
-
-
-## Analysis and Results
+## Modeling and Results
 
 Based on architecture of the models, the U-Net models have significantly more parameters than the Encoder-Decoder models.
 
