@@ -1,6 +1,6 @@
 ---
-title: "Exploring the effects of Receptive Fields in CNN"
-subtitle: "Optimizing CNNs through effective receptive fields"
+title: "Comparative analysis of filter sizes in CNN architectures"
+subtitle: "Evaluating impact of receptive field in Encoder-Decoder and U-Net models for Lane Detection Segmentation"
 author: "Susanta Deka, Kalyani Kotti (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 format:
@@ -26,20 +26,16 @@ Slides: [slides.html](slides.html){target="_blank"}
 
 ## Abstract
 
-The receptive field of a Convolution Neural Network (CNN) is the
-specific region/area in input data that activates the neurons i.e. the
-features captured by a convolution layer. In other words, the area that a convolution layer (or filter) interacts with is the receptive field [@liCollaborativeEdgeComputing2022]. This region determines the
-level of feature extraction, or learning from the input which ultimately
-impacts the quality of the output alongside compute requirements and resource allocation. Different sizes of receptive fields
-may be optimal for different tasks. This also means that the effective
-receptive field for a given task will vary with variation in the input.
-For example a magnified image vs a large zoomed out scene will yield
-vastly different features for the same receptive field. In this study,
-we aim to identify the optimal sizes and combination of convolution
-filters for effective receptive fields as well as their compute costs. In other
-words, we want to experiment different configurations of convolutional
-filters and network architectures that affect the effective receptive
-field using different kernel sizes and compare the number of parameters alongside the computational cost.
+The receptive field of a Convolution Neural Network (CNN) refers to the specific region in the input data that influences the activation of a particular neuron in the network. In other words, it's the area in the input that contributes to the output calculation of a particular neuron [@liCollaborativeEdgeComputing2022]. The size of this region determines the
+level of feature abstraction where larger receptive fields can capture more global patterns while smaller ones can focus on local details.
+
+Different sizes of receptive fields may be optimal for different tasks. The effective receptive field (the region that actually has significant influence on the output) cam differ from the theoretical receptive field (calculated mathematically) and typically shows a Gaussian-like distribution of influence, with pixels near the center having more impact than those at the edges [@luoUnderstandingEffectiveReceptive2017].
+
+Different tasks may require different receptive field configurations. For example, tasks involving fine details might require networks with smaller receptive fields, while tasks requiring more global context could benefit from architectures with larger receptive fields. However, it is important to note that the effective receptive field is a property of the network's architecture and not directly dependent on the input image size itself.
+
+In this study, we aim to experiment different configurations of convolutional filters and network architectures that affect the effective receptive field using different convolutional filter sizes and compare the number of parameters alongside the compute cost.
+
+
 
 ## Introduction
 
@@ -519,6 +515,11 @@ Based on the Dice & IoU comparison charts, it is clear that the CNN-5 & UNet-3 m
 
 # Conclusion
 
+This study explored how different convolutional filter sizes— 3×3, 5×5, and 7×7— affect the performance and efficiency of CNN-based Encoder-Decoder and U-Net architectures for lane detection through semantic segmentation. Our findings show that while larger filter sizes naturally increase model complexity and parameter count, they do not always yield proportionally better segmentation performance.
+
+Notably, the U-Net models which are more parameter heavy and require more memory, generally outperformed the CNN Encoder-Decoder models in segmentation accuracy, particularly the 3×3 model. The UNet-3 model achieved the highest Dice coefficient and IoU which means it's the best performer in pixelwise classification and had better preservation of spatial features likely due to its deeper architecture and skip connections.
+
+However, the CNN-5 model emerged as the better middle ground. It is 90% smaller than the U-Net while still delivering competitive accuracy, making it suitable for environments where computational efficiency is critical.
 
 
 
