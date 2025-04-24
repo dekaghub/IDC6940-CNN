@@ -1,5 +1,5 @@
 ---
-title: "Comparative analysis of filter sizes in CNN architectures"
+title: "Comparative analysis of CNN filter sizes"
 subtitle: "Evaluating impact of receptive field in Encoder-Decoder and U-Net models for Lane Detection Segmentation"
 author: "Susanta Deka, Kalyani Kotti (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
@@ -782,7 +782,6 @@ This study explored how different convolutional filter sizes— 3×3, 5×5, and 
 Notably, the U-Net models which are more parameter heavy and require more memory, generally outperformed the CNN Encoder-Decoder models in segmentation accuracy, particularly the 3×3 model. The UNet-3 model achieved the highest Dice coefficient and IoU which means it's the best performer in pixelwise classification and had better preservation of spatial features likely due to its deeper architecture and skip connections.
 
 However, the CNN-5 model emerged as the better middle ground. It is 90% smaller than the U-Net while still delivering competitive accuracy, making it suitable for environments where computational efficiency is critical.
-
 
 
 # References

@@ -1,12 +1,17 @@
 ---
-title: "Present a great story for data science projects"
-subtitle: "This is a Slide Template"
+title: "Comparative analysis of CNN filter sizes"
+subtitle: "Evaluating impact of receptive field in Encoder-Decoder and U-Net models for Lane Detection Segmentation"
 author: "Susanta Deka, Kalyani Kotti (Advisor: Dr. Cohen)"
 date: '`r Sys.Date()`'
 format:
-  revealjs
+  revealjs:
+    incremental: true   
+    slide-number: true
+    show-slide-number: print
+    smaller: true
+    scrollable: true
 course: Capstone Projects in Data Science
-bibliography: references.bib # file contains bibtex for references
+bibliography: references_deka.bib # file contains bibtex for references
 #always_allow_html: true # this allows to get PDF with HTML features
 self-contained: true
 execute: 
@@ -17,39 +22,50 @@ editor:
     wrap: 72
 ---
 
-::: callout-important
-**Remember:** Your goal is to make your audience understand and care
-about your findings. By crafting a compelling story, you can effectively
-communicate the value of your data science project.
 
-Carefully read this template since it has instructions and tips to
-writing!
+#### Image Classification vs Semantic Segmentation  {.smaller}
 
-More information about `revealjs`:
-<https://quarto.org/docs/reference/formats/presentations/revealjs.html>
-:::
+-   Classification - assign a label
 
-## Introduction  {.smaller}
+-   Image classification ---> single label
 
--   Develop a storyline that captures attention and maintains interest.
+- ![](./slides_imgs/cat_tub.jpeg){width="40%"}
 
--   Your audience is your peers
+-   Cat or Dog
 
--   Clearly state the problem or question you're addressing.
+------------------------------------------------------------------------
 
--   Introduce why it is relevant needs.
+#### Image Classification vs Semantic Segmentation  {.smaller}
 
--   Provide an overview of your approach.
+-   Semantic Segmentation -> assign a label to each pixel
 
-In kernel estimator, weight function is known as kernel function
-[@efr2008]. Cite this paper [@bro2014principal]. The GEE [@wang2014].
-The PCA [@daffertshofer2004pca]\*
+-   Output -> Mask
 
-## Methods
+- ![](./slides_imgs/semantic_example.jpg){width="80%"}
 
--   Detail the models or algorithms used.
+------------------------------------------------------------------------
 
--   Justify your choices based on the problem and data.
+## Convolution Layer
+
+<div class="fragment">
+
+![](./slides_imgs/conv_net.png)
+
+</div>
+
+-   Typical CNN architecture
+
+------------------------------------------------------------------------
+
+## Convolution Layer - Animation
+
+<div class="fragment">
+
+![](./slides_imgs/convolution_anim.gif)
+
+</div>
+
+-   Typical CNN architecture
 
 
 
@@ -74,25 +90,6 @@ library(ggrepel)
 library(dslabs)
 ```
 
-```{r, warning=FALSE, echo=F}
-# Load Data
-#kable(head(murders))
-
-ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total)) 
-
-  ggplot1 + geom_point(aes(col=region), size = 4) +
-  geom_text_repel(aes(label=abb)) +
-  scale_x_log10() +
-  scale_y_log10() +
-  geom_smooth(formula = "y~x", method=lm,se = F)+
-  xlab("Populations in millions (log10 scale)") + 
-  ylab("Total number of murders (log10 scale)") +
-  ggtitle("US Gun Murders in 2010") +
-  scale_color_discrete(name = "Region")+
-      theme_bw()
-  
-
-```
 
 ## Modeling and Results
 
@@ -104,9 +101,6 @@ ggplot1 = murders %>% ggplot(mapping = aes(x=population/10^6, y=total))
 
 -   **Tell a story about what the data reveals.**
 
-```{r}
-
-```
 
 ## Conclusion
 
