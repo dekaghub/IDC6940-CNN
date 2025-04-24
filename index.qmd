@@ -195,7 +195,7 @@ autonomous systems, and IoT applications.
 
 ## Dataset
 
-For this project we have decided to use a dataset based on the Carla (Car Learning to Act) Driving Simulator, an open-source simulator designed for autonomous
+For this project we decided to use a dataset based on the Carla (Car Learning to Act) Driving Simulator, an open-source simulator designed for autonomous
 driving research. Carla simulates driving scenarios that are applicable for training models for tasks like lane detection, object detection, and semantic segmentation.
 
 -   Dataset Source: [Lane Detection for Carla Driving Simulator Kaggle](https://www.kaggle.com/datasets/thomasfermi/lane-detection-for-carla-driving-simulator).
@@ -205,12 +205,9 @@ driving research. Carla simulates driving scenarios that are applicable for trai
 -   Total samples: 6408 png files = 3075 train + 3075 train_label +
     129 val + 129 val_label images
 
-## Dataset Visualization
+#### Dataset Visualization
 
-The dataset contains over 6000 images of road scenes and label images
-for training and validation.
-
-Example of one of the images.
+Example of one of the images and the corresponding label mask.
 
 ![](https://imgur.com/sAVhGgC)
 
@@ -225,7 +222,7 @@ serve as the label for training.
 
 ![](https://imgur.com/LAKKKlk)
 
-### Exploring summary statistics of the dataset images
+#### Exploring summary statistics of the dataset images
 
 Since the images contain all three RGB channels, we perform some
 statistics to understand the distribution of each individual RGB channel
@@ -360,7 +357,11 @@ plt.show()
 
 ## Methods
 
-The main objective of this project is to compare 3×3, 5×5, and 7×7 convolution filters within two architectures: a basic CNN-based encoder-decoder and the UNet model. We aim to evaluate how filter size affects segmentation accuracy, training and evaluation time, and overall computational efficiency. The main machine learning task is semantic segmentation, specifically detecting lanes in a road. Unlike image classification where a label is assigned to an entire image, semantic segmentation goes a step further by classifying each pixel in the image to some class label. Semantic segmentation requires a model to output the final result in the same dimension as the input image. This means that information from the input needs to be carried over in all the layers. The final result is a label map or mask where different pixel values represent different class labels.
+The main objective of this project is to compare 3×3, 5×5, and 7×7 convolution filters within two architectures: a basic CNN-based encoder-decoder and the UNet model. We aim to evaluate how filter size affects segmentation accuracy, training and evaluation time, and overall computate efficiency. The main machine learning task is semantic segmentation, specifically detecting lanes on a road. Unlike image classification where a label is assigned to an entire image, semantic segmentation goes a step further by classifying each pixel in the image to some class label. 
+
+Standard **convolution filters** with strides downsample an image to extract hierarchical features. This happens in the encoding phase. To restore spatial context in the decoding phase (or upsampling phase), **transposed convolution filters**, also known as *deconvolution* or *deconv layers*, are used to upsample feature maps for either reconstruction or decoding. 
+
+Semantic segmentation requires a model to output the final result in the same dimension as the input image. This means that the spatial information from the input needs to be carried over (or propagated) throughout the network. The final result is a label map or mask where different pixel values represent different class labels.
 
 The following steps outline the experimental setup:
 
@@ -449,7 +450,7 @@ Decoder (Expanding Path) - The decoder mirrors the encoder structure and restore
 
 * Skip Connections:
 
-    * At each upsampling stage, the upsampled feature map is concatenated with the corresponding encoder feature map (skip connection) to preserve spatial context
+    * At each upsampling stage, the upsampled feature map is concatenated with the corresponding encoder feature map (skip connection) for spatial context
 
     * If spatial dimensions do not match (due to rounding), the upsampled map is resized to match the encoder feature
 
@@ -467,162 +468,37 @@ Output Layer
 
 **2. Training Configuration**
 
-For the model training, the following setup will be used: Loss Function:
-The cross-entropy loss function will be used for training. This is a
-standard loss function for semantic segmentation tasks that penalizes
-the difference between predicted and ground truth segmentation masks.
-The formula for the cross-entropy loss for binary classification (e.g.,
-predicting whether each pixel belongs to a lane or not) is:
+All three — 3×3, 5×5, and 7×7 — convolution filter variants of both the encoder-decoder and UNet models were trained for 10 epochs. We used PyTorch dataloaders to train in batches using a batch size of 25. Given that the training set contains 3,075 samples, there were 123 batches per epoch. For the loss function, we used PyTorch’s built-in cross-entropy loss, which internally applies softmax followed by negative log likelihood (NLL). This is standard for multi-class segmentation tasks and has been used in many state-of-the-art models [@yeungUnifiedFocalLoss2022].
 
-$\text{Loss} = -\left[ y \log(p) + (1 - y) \log(1 - p) \right]$
+For validation, we used the cross entropy loss function again to calculate the loss between the model’s predictions and the ground truth segmentation masks. Moreover, we also calculate the mean Intersection over Union (mIoU) and the Dice coefficient as they're both widely used metrics in segmentation. Both these metrics calculate the overlap between the predicted masks and the ground truth masks. The Dice coefficient is particularly better for segmentation tasks with class imbalance because it gives double the weight to positive overlap i.e. true positives [@katoAdaptiveTvMFDice2024]. In our case, the lane markings on a road occupy a smaller portion in the image.
 
-Where:
-
--   y is the true label (0 or 1) of a given pixel (1 if it's a lane, 0
-    if it's not).
--   p is the predicted probability that the pixel belongs to class 1
-    (lane).
--   log is the natural logarithm. For multi-class classification (such
-    as when there are more than two classes, like lane types or road
-    segments), the formula generalizes as follows:
-
-$\text{Loss} = -\sum_{c=1}^C Y_c \log(p_c)$
-
-Where: \* C is the number of classes (e.g., "lane", "road",
-"background"). \* $Y_c$ is the true label for class ccc (1 if the pixel
-belongs to class ccc, 0 otherwise). \* $P_c$ is the predicted
-probability for class ccc for a given pixel. \* The sum is taken over
-all classes. \* Optimizer: The Adam optimizer will be used with an
-initial learning rate of 0.001. Learning rate scheduling will be
-implemented to adjust the learning rate during training, ensuring better
-convergence. The Adam optimizer computes updates using the following
-steps:
-
-1.  Gradient Calculation: Let θt be the parameters at time step t, and
-    gt be the gradient of the loss function at time step t with respect
-    to the parameters.
-
-2.  Compute the Moving Averages:
-
--   The first moment estimate mt is the exponentially weighted moving
-    average of the gradients:
-    $m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t$
--   The second moment estimate vt is the exponentially weighted moving
-    average of the squared gradients:
-    $v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2$
--   Here, β1 and β2 are hyperparameters that control the decay rates of
-    the moving averages for the first and second moments, respectively.
-    Commonly used values are:
--   $\beta_1=0.9$
--   $\beta_2=0.999$
-
-3.  Bias Correction: Since the moving averages are initialized to 0,
-    they are biased toward 0 during the early time steps. To correct
-    this, bias-corrected estimates (\hat{m}\_t) and (\hat{v}\_t) are
-    computed as: \[ \hat{m}\_t = \frac{m_t}{1 - \beta_1^t} \] \[
-    \hat{v}\_t = \frac{v_t}{1 - \beta_2^t} \] The bias correction terms
-    help to ensure that the moment estimates are unbiased, especially in
-    the early stages of training.
-
-4.  Parameter Update: Finally, the parameters are updated using the
-    following rule:
-
-$\theta_{t+1} = \theta_t - \alpha \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}$
-
-Where:
-
--   α is the learning rate (often set to 0.001),
-
--   $\epsilon$ is a small constant (e.g., $(10^{-7})$) to avoid division
-    by zero.
-
--   Batch Size: A batch size of 16 will be used to balance between
-    computational efficiency and memory constraints.
-
--   Training and Validation Split: 80% of the dataset will be used for
-    training, and the remaining 20% will be used for validation to
-    monitor performance and prevent overfitting.
-
-**4. Receptive Field Analysis**
-
-The receptive field will be manipulated and analyzed through the
-following strategies:
-
--   Varying Kernel Sizes: Models will be tested using convolutional
-    kernels of 3x3, 5x5, and 7x7 sizes to investigate the trade-off
-    between local feature capture and global context. The goal is to
-    determine how kernel size affects lane detection accuracy,
-    especially in complex road structures.
--   Increasing Network Depth: The effect of deeper architectures on
-    receptive field size will be explored. Deeper networks will
-    naturally increase the receptive field, which might help in
-    detecting lanes across long distances or in intricate road layouts.
-    We will compare shallow and deep architectures to assess the
-    benefits.
--   Dilated Convolutions: Dilated convolutions will be incorporated into
-    the network to expand the receptive field without down sampling.
-    This allows the model to capture larger areas of the image while
-    retaining spatial resolution for finer lane features.
--   Pooling Layers: Different configurations of pooling layers (e.g.,
-    max pooling vs. average pooling) will be evaluated to observe how
-    they influence the receptive field. Pooling is known to increase the
-    receptive field, but too much pooling early in the network might
-    cause the loss of fine lane details.
-
-**5. Hyperparameter Tuning**
-
-The following hyperparameters will be tuned to optimize model
-performance:
-
--   Learning Rate: Experimentation with different learning rates to find
-    the optimal value for faster convergence.
--   Number of Epochs: A sufficient number of epochs will be used (e.g.,
-    50-100 epochs) to allow the model to converge. Early stopping will
-    be implemented to prevent overfitting.
--   Batch Size: We will test different batch sizes to determine the best
-    trade-off between memory usage and training stability.
-
-**6. Evaluation Metrics**
-
-The following evaluation metrics will be used to assess the performance
-of the models:
-
--   Pixel Accuracy: Measures the percentage of pixels that are correctly
-    classified as part of the lane or background.
--   Mean Intersection over Union (mIoU): Calculates the overlap between
-    predicted and ground truth lane masks, providing a measure of
-    segmentation accuracy.
--   Dice Similarity Coefficient (DSC): This metric evaluates the
-    similarity between the predicted and true lane masks, which is
-    particularly important for imbalanced datasets.
-
-**7. Model Evaluation**
-
-Once trained, the model will be evaluated on the test set using the
-aforementioned metrics. The impact of receptive field adjustments
-(kernel sizes, network depth, dilated convolutions, pooling) on the
-model's performance will be carefully analyzed, particularly with
-respect to its ability to detect lane boundaries in different road
-conditions. Expected Outcomes We hypothesize that:
-
--   Larger receptive fields (via larger kernels, deeper networks, and
-    dilated convolutions) will improve the model's ability to detect
-    long-range lane structures, especially on curved or complex roads.
--   Smaller receptive fields may be better for focusing on localized
-    features, such as lane markings, but may struggle with more complex
-    road geometries.
--   The encoder-decoder architecture will improve the segmentation
-    accuracy by allowing the model to retain fine details while
-    capturing broader contextual information. The results will guide us
-    in identifying the most effective network configuration for optimal
-    lane detection performance in autonomous driving applications.
-
-# Arrange Later
-
-Since we are working on a task that has inherent imbalance because the
-target accounts for fraction of the total area. Therefore dice loss.
-[@katoAdaptiveTvMFDice2024]
 
 ## Analysis and Results
+
+Based on the model architecture, the U-Net models had significantly more parameters than the Encoder-Decoder models.
+
+| Model      | Total Params  | Trainable Params | Difference with UNet |  
+|------------|--------------|------------------|----------------------|
+| CNN 3x3    | 3,139,587    | 3,139,587        |                      |
+| UNet 3x3   | 31,037,763   | 31,037,763       | 27,898,176           |
+| CNN 5x5    | 8,713,219    | 8,713,219        |                      |
+| UNet 5x5   | 81,241,411   | 81,241,411       | 72,528,192           |
+| CNN 7x7    | 17,073,667   | 17,073,667       |                      |
+| UNet 7x7   | 156,546,883  | 156,546,883      | 139,473,216          |
+
+
+
+> The Encoder-Decoder models are roughly 10% the size of the U-Net models.
+
+
+![](./imgs/memory_comparison.png)
+
+Here, peak memory represents the memory that was used for active calculation during tensor operations whereas reserved memory is the pre-allocated memory for active calculation as well as caching of repeated calculations. Since the U-Net models are big, they took higher memory and longer time to train.
+
+![](./imgs/CNN-3_memory_over_time.png)
+
+![](./imgs/UNet-3_memory_over_time.png)
+
+Comparing the CNN-3 vs UNet-3, it took 5 minutes to train the CNN-3 model whereas it took 8 minutes for the UNet-3 model.
 
 # References
