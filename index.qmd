@@ -64,7 +64,7 @@ state-of-the-art models and their results on various tasks.
 
 There are numerous models and architectures of CNN. A review article by
 Cong and Zhou goes into details about the 6 typical architectures of
-CNN. A typical CNN consists of these five basic layers which are the input
+CNN. A typical CNN consists of five basic layers which are the input
 layer, the convolution layer, the pooling layer, the Fully Connected
 (FC) layer (also known as the Dense layer) and the output layer. Early advancements in CNN design are exemplified by ImageNet, more commonly known as AlexNet, which introduced the ReLu activation function instead of
 tanh to reduce computation complexity and resolve the vanishing gradient
@@ -74,17 +74,17 @@ well as reducing overfitting. There's also mention of ZfNet or DeconvNet
 where researchers provided visualizations to understand the internal
 mechanism of a CNN architecture.
 
-The article then talks about VGG Net where researchers used smaller 3x3 CNN
-filters (or kernels) and deeper architectures with increased network depth.
-There's also mention of GoogLeNet and its use of multiple filters of
+The authors then talk about VGG Net where researchers used smaller 3x3 CNN
+filters and deeper architectures with increased network depth.
+They also mention GoogLeNet and its use of multiple filters of
 varying sizes stacked together to extract features of different sizes.
-The authors mention that Batch Normalization was a major contribution
+The authors point out that Batch Normalization was a major contribution
 with the introduction of the InceptionV2 model which improved
 backpropagation and the gradient vanishing problem by stabilizing gradient flow, addressing issues related to internal covariate shift.
 
 Then there's the idea of cross-layer connection which is different from
 prior architectures where connections existed only between adjacent
-layers. Residual Networks (ResNet) implemented this cross-layer connection through shortcut connections where the input is transferred across multiple layers aenabling feature aggregation across non-adjacent layers. This is an example
+layers. Residual Networks (ResNet) implemented this cross-layer connection through shortcut connections where the input is transferred across multiple layers enabling feature aggregation across non-adjacent layers. This is an example
 of widening the network which is opposite to that of deepening the
 network. Finally, there's info about the DenseNet which is a CNN
 architecture with dense connections where each layer is connected to
@@ -127,8 +127,7 @@ method, which uniformly scales depth, width, and resolution to optimize
 efficiency [@tanEfficientNetRethinkingModel2020]. Furthermore, NAS
 (Neural Architecture Search)-designed models have demonstrated promising
 results in automating the design of lightweight networks, with
-MobileNetV3 [@congReviewConvolutionalNeural2023] integrating NAS
-techniques to improve upon its predecessors.
+MobileNetV3 integrating NAS techniques to improve upon its predecessors [@congReviewConvolutionalNeural2023].
 
 Another key direction in lightweight DCNNs is model compression, which
 reduces the memory footprint and computational burden without
@@ -357,7 +356,7 @@ plt.show()
 
 ## Methods
 
-The main objective of this project is to compare 3×3, 5×5, and 7×7 convolution filters within two architectures: a basic CNN-based encoder-decoder and the UNet model. We aim to evaluate how filter size affects segmentation accuracy, training and evaluation time, and overall computate efficiency. The main machine learning task is semantic segmentation, specifically detecting lanes on a road. Unlike image classification where a label is assigned to an entire image, semantic segmentation goes a step further by classifying each pixel in the image to some class label. 
+The main objective of this project is to compare 3×3, 5×5, and 7×7 convolution filters within two architectures: a basic CNN-based encoder-decoder and the U-Net model [@ronnebergerUNetConvolutionalNetworks2015]. We aim to evaluate how filter size affects segmentation accuracy, training and evaluation time, and overall compute efficiency. The main machine learning task is semantic segmentation, specifically detecting lanes on a road. Unlike image classification where a label is assigned to an entire image, semantic segmentation goes a step further by classifying each pixel in the image to some class label. 
 
 Standard **convolution filters** with strides downsample an image to extract hierarchical features. This happens in the encoding phase. To restore spatial context in the decoding phase (or upsampling phase), **transposed convolution filters**, also known as *deconvolution* or *deconv layers*, are used to upsample feature maps for either reconstruction or decoding. 
 
@@ -381,13 +380,7 @@ Encoder - The encoder comprises five sequential blocks, each containing:
 
     * Channel expansion: 3→32→64→128→256→512
 
-* Feature Normalization:
-
-    * Batch normalization (BN) layer after each convolution
-
-* Non-linear Activation:
-
-    * ReLU activation for feature transformation
+* Batch normalization (BN) layer after each convolution followed by ReLU activation
 
 The encoder downsamples the spatial dimensions by $2^5$ (32x downscaling).
 
@@ -401,13 +394,9 @@ Decoder - The decoder mirrors the encoder structure using transposed convolution
 
     * Channel reduction: 512→256→128→64→32→3
 
-* Normalization & Activation:
-
     * BN + ReLU combinations in all layers except final output
 
-* Reconstruction Layer:
-    
-    * Final transposed convolution produces 3-channel output matching input dimensions
+* Reconstruction Layer: Final transposed convolution produces 3-channel output matching input dimensions
     
 
 > 1.b U-Net
@@ -448,15 +437,10 @@ Decoder (Expanding Path) - The decoder mirrors the encoder structure and restore
 
     * Channel reduction: 1024→512→256→128→64
 
-* Skip Connections:
+* Skip Connections: At each upsampling stage, the upsampled feature map is concatenated with the corresponding encoder feature map (skip connection) for spatial context
 
-    * At each upsampling stage, the upsampled feature map is concatenated with the corresponding encoder feature map (skip connection) for spatial context
 
-    * If spatial dimensions do not match (due to rounding), the upsampled map is resized to match the encoder feature
-
-* Double Convolutional Layers:
-
-    * After concatenation, two convolutional layers (with BN and ReLU) refine the combined features
+* Double Convolutional Layers: After concatenation, two convolutional layers (with BN and ReLU) refine the combined features
 
 Output Layer
 
@@ -475,30 +459,67 @@ For validation, we used the cross entropy loss function again to calculate the l
 
 ## Analysis and Results
 
-Based on the model architecture, the U-Net models had significantly more parameters than the Encoder-Decoder models.
+Based on architecture of the models, the U-Net models have significantly more parameters than the Encoder-Decoder models.
 
-| Model      | Total Params  | Trainable Params | Difference with UNet |  
-|------------|--------------|------------------|----------------------|
-| CNN 3x3    | 3,139,587    | 3,139,587        |                      |
-| UNet 3x3   | 31,037,763   | 31,037,763       | 27,898,176           |
-| CNN 5x5    | 8,713,219    | 8,713,219        |                      |
-| UNet 5x5   | 81,241,411   | 81,241,411       | 72,528,192           |
-| CNN 7x7    | 17,073,667   | 17,073,667       |                      |
-| UNet 7x7   | 156,546,883  | 156,546,883      | 139,473,216          |
+| Model      | Parameters   | Difference with UNet |  
+|------------|--------------|----------------------|
+| CNN 3x3    | 3,139,587    |                      |
+| UNet 3x3   | 31,037,763   | 27,898,176           |
+| CNN 5x5    | 8,713,219    |                      |
+| UNet 5x5   | 81,241,411   | 72,528,192           |
+| CNN 7x7    | 17,073,667   |                      |
+| UNet 7x7   | 156,546,883  | 139,473,216          |
 
 
 
-> The Encoder-Decoder models are roughly 10% the size of the U-Net models.
+> The CNN Encoder-Decoder models are roughly 10% the size of their counterpart U-Net models.
 
 
 ![](./imgs/memory_comparison.png)
 
-Here, peak memory represents the memory that was used for active calculation during tensor operations whereas reserved memory is the pre-allocated memory for active calculation as well as caching of repeated calculations. Since the U-Net models are big, they took higher memory and longer time to train.
+
+Peak memory refers to the memory actively utilized during tensor operations (calculations), while reserved memory includes both the memory set aside for computations and additional memory cached for repeated operations. Since the U-Net models are larger, they take up more memory and longer to train.
+
 
 ![](./imgs/CNN-3_memory_over_time.png)
 
 ![](./imgs/UNet-3_memory_over_time.png)
 
-Comparing the CNN-3 vs UNet-3, it took 5 minutes to train the CNN-3 model whereas it took 8 minutes for the UNet-3 model.
+When comparing CNN-3 and UNet-3, the CNN-3 model completed training in 5 minutes, while the UNet-3 model took 8 minutes.
+
+Interestingly, the gap in memory usage and training time is significantly larger with the 7x7 models. However, the increase in training time from CNN-3 to CNN-7 is fairly tiny, despite the CNN-7 having nearly six times as many parameters as CNN-3.
+
+
+![](./imgs/UNet-7_memory_over_time.png)
+![](./imgs/CNN-7_memory_over_time.png)
+
+For model performance we look at the dice coefficient for both the model types.
+
+![](./imgs/cnn_dice_compare.png)
+![](./imgs/unet-dice_compare.png)
+
+
+Similarly, we can also look at the IoU comparison for both model types.
+
+
+
+![](./imgs/cnn_iou_compare.png)
+
+![](./imgs/unet_iou_compare.png)
+
+
+
+Based on the Dice & IoU comparison charts, it is clear that the CNN-5 & UNet-3 models are the best performers. The UNet-3 performs slightly better than the CNN-5 given that the dice score **.885 > .85** and the IoU score of **.805 > .755**.
+
+#### Predictions using CNN-5 & UNet-3
+
+![](./imgs/unet-3_predictions.png)
+![](./imgs/cnn-5_predictions.png)
+
+
+# Conclusion
+
+
+
 
 # References
