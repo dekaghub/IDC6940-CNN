@@ -27,9 +27,9 @@ editor:
 
 -   Classification - assign a label
 
--   Image classification ---> single label
+-   Image classification --- single label
 
-- ![](./slides_imgs/cat_tub.jpeg){width="40%"}
+-   ![](./slides_imgs/cat_tub.jpeg){width="40%"}
 
 -   Cat or Dog
 
@@ -57,6 +57,17 @@ editor:
 
 ------------------------------------------------------------------------
 
+## Convolution Layer
+
+<div class="fragment">
+
+![](./slides_imgs/conv_net_window.png){width="60%" height="40%"}
+</div>
+
+-   Feature Extraction
+
+------------------------------------------------------------------------
+
 ## Convolution Layer - Animation
 
 <div class="fragment">
@@ -65,47 +76,256 @@ editor:
 
 </div>
 
--   Typical CNN architecture
+-   Matrix Dot Product
+
+------------------------------------------------------------------------
+
+## Convolution Layer - Math
+
+<div class="fragment">
+
+![](./slides_imgs/conv_math.png)
+
+</div>
+
+-   Matrix Dot Product
+
+-   Sum of Element-Wise multiplication
+
+-   Downsampling
+
+------------------------------------------------------------------------
+
+## Transposed Convolution
+
+<div class="fragment">
+
+![](./slides_imgs/transposed_conv.png)
+
+</div>
+
+-   Opposite of Convolution
+
+-   Upsample
+
+-   Expand
 
 
+------------------------------------------------------------------------
 
-## Data Exploration and Visualization
+## CNN Encoder-Decoder Architecture
 
--   Describe your data sources and collection process.
+<div class="fragment">
 
--   Present initial findings and insights through visualizations.
+![](./imgs/model_arch_cnn-encoder-decoder.png)
 
--   Highlight unexpected patterns or anomalies.
+</div>
 
-## Data Exploration and Visualization {.smaller}
+-   Convolution Layers in Encoder
 
-A study was conducted to determine how...
+-   Transposed Convolution Layer in Decoder
 
-```{r, warning=FALSE, echo=F, message=FALSE}
-# loading packages 
-library(tidyverse)
-library(knitr)
-library(ggthemes)
-library(ggrepel)
-library(dslabs)
-```
+------------------------------------------------------------------------
+
+## U-Net
+
+<div class="fragment">
+
+![](./imgs/model_arch_unet.png)
+
+</div>
+
+-   Double Convolution Layers
+
+-   Transposed Convolution Layer in Expanding Path
+
+-   Skip Connections (Concat) --- Spatial Context
+
+------------------------------------------------------------------------
+
+## Model Parameter Count
 
 
-## Modeling and Results
+| Model      | Parameters   | Difference with UNet |  
+|------------|--------------|----------------------|
+| CNN 3x3    | 3,139,587    |                      |
+| UNet 3x3   | 31,037,763   | 27,898,176           |
+| CNN 5x5    | 8,713,219    |                      |
+| UNet 5x5   | 81,241,411   | 72,528,192           |
+| CNN 7x7    | 17,073,667   |                      |
+| UNet 7x7   | 156,546,883  | 139,473,216          |
 
--   Explain your data preprocessing and cleaning steps.
+------------------------------------------------------------------------
 
--   Present your key findings in a clear and concise manner.
+## Training Setup
 
--   Use visuals to support your claims.
+*   PyTorch DataLoaders -- Batch training
 
--   **Tell a story about what the data reveals.**
+*   Epoch -- 10
 
+*   Loss -- PyTorch CrossEntropy
+
+------------------------------------------------------------------------
+
+## PyTorch Cross Entropy
+
+-   Uses softmax and Negative Log Likelihood internally
+-   Raw model outputs (logits): [2.5, 1.2, 0.8]
+-   After softmax: [0.65, 0.18, 0.17]
+-   If the correct class is index 0, NLL loss = -log(0.65) ≈ 0.43
+-   If the correct class is index 2, NLL loss = -log(0.17) ≈ 1.77
+
+
+------------------------------------------------------------------------
+
+## Training Time
+
+-   UNet-3
+<div class="fragment">
+![](./imgs/UNet-3_memory_over_time.png)
+</div>
+------------------------------------------------------------------------
+
+## Training Time
+
+-   UNet-7
+<div class="fragment">
+![](./imgs/UNet-7_memory_over_time.png)
+</div>
+------------------------------------------------------------------------
+
+## Training Time
+
+-   CNN-7
+<div class="fragment">
+![](./imgs/CNN-7_memory_over_time.png)
+</div>
+------------------------------------------------------------------------
+
+## Training Time
+
+-   CNN-5
+<div class="fragment">
+![](./imgs/CNN-3_memory_over_time.png)
+</div>
+
+
+------------------------------------------------------------------------
+
+## Model Parameter Count
+
+
+| Model      | Parameters   | Difference with UNet |  
+|------------|--------------|----------------------|
+| CNN 3x3    | 3,139,587    |                      |
+| UNet 3x3   | 31,037,763   | 27,898,176           |
+| CNN 5x5    | 8,713,219    |                      |
+| UNet 5x5   | 81,241,411   | 72,528,192           |
+| CNN 7x7    | 17,073,667   |                      |
+| UNet 7x7   | 156,546,883  | 139,473,216          |
+
+
+------------------------------------------------------------------------
+
+## Comparison of Memory Usage
+
+
+<div class="fragment">
+
+![](./imgs/memory_comparison.png)
+</div>
+
+
+------------------------------------------------------------------------
+
+## Performance of Models
+
+
+- IoU
+
+- Dice Coefficient
+
+------------------------------------------------------------------------
+
+## Performance of Models
+
+<div class="fragment">
+
+![](./imgs/cnn_dice_compare.png)
+
+</div>
+
+------------------------------------------------------------------------
+
+## Performance of Models
+
+<div class="fragment">
+
+![](./imgs/unet-dice_compare.png)
+
+</div>
+
+------------------------------------------------------------------------
+
+## Top Performers
+
+-   CNN-5
+
+-   UNet-3
+
+<div class="fragment">
+
+![](./imgs/cnn-5_unet-3_iou.png)
+
+</div>
+
+------------------------------------------------------------------------
+
+## Model Parameter Count
+
+
+| Model      | Parameters   | Difference with UNet |  
+|------------|--------------|----------------------|
+| CNN 3x3    | 3,139,587    |                      |
+| UNet 3x3   | 31,037,763   | 27,898,176           |
+| CNN 5x5    | 8,713,219    |                      |
+| UNet 5x5   | 81,241,411   | 72,528,192           |
+| CNN 7x7    | 17,073,667   |                      |
+| UNet 7x7   | 156,546,883  | 139,473,216          |
+
+
+------------------------------------------------------------------------
+
+## Predictions - CNN-5
+
+
+<div class="fragment">
+
+![](./imgs/cnn-5_predictions.png)
+
+</div>
+
+------------------------------------------------------------------------
+
+## Predictions - UNet-3
+
+
+<div class="fragment">
+
+![](./imgs/unet-3_predictions.png)
+
+</div>
+
+------------------------------------------------------------------------
 
 ## Conclusion
 
--   Summarize your key findings.
 
--   Discuss the implications of your results.
+-   CNN-5 > UNet-3
 
-## References
+-   The UNet-3 performs slightly better than the CNN-5 
+
+-   Dice score **.885 > .85** and the IoU score of **.805 > .755**
+
+-   CNN-5 is 75% smaller than UNet-3
+
