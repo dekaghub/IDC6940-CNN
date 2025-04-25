@@ -22,6 +22,113 @@ editor:
     wrap: 72
 ---
 
+## Introduction to our Project
+
+-   Self-driving cars rely a lot on computer vision to make sense of the road.     One of the most important things they need to do is detect lanes so the car     knows where to drive safely.
+
+-   Deep learning models, especially CNNs (Convolutional Neural Networks), are     great at recognizing patterns in images. More specifically, they focus on      parts of the image for making a decision.
+
+-   That’s where something called the receptive field comes in. If the             receptive field is too small or not well-designed, the model might miss        important context, like curves or broken lane lines.
+
+-   In this project, we explore how the size and shape of the receptive field      impacts the model’s ability to accurately detect lanes using simulated         driving scenes from the Carla simulator.
+
+------------------------------------------------------------------------
+
+## Project Objectives
+
+-   Exploring how receptive fields grow across layers in convolutional neural      networks. Using the visualization techniques to see what part of the image     each layer focuses on and analyzing the ability to capture lane structure,     road edges.
+-   Test models on the Carla Lane Detection dataset to see how well they detect     lanes in realistic driving scenarios.
+-   Measure performance using metrics like IoU, accuracy, precision, recall on     lane detection outputs. Comparing predictions visually with ground truth to     assess model focus and reasoning.
+
+------------------------------------------------------------------------
+
+# Dataset Overview
+
+## Lane Detection for Carla Driving Simulator
+
+For this project we are using dataset based on the Carla (Car Learning to Act) Driving Simulator, an open-source simulator designed for autonomous driving research. 
+Carla simulates driving scenarios that are applicable for training models for tasks like lane detection, object detection, and semantic segmentation.
+
+This data set consists of total samples: 6408 png files = 3075 train + 3075 train_label + 129 val + 129 val_label images.
+
+------------------------------------------------------------------------
+
+# Understanding Receptive Fields in CNNs
+## What is a Receptive Field
+
+  The receptive field of a neuron (or unit) in a CNN is the region of the input   image that affects the output of that neuron.
+  
+  If a neuron in a deep layer becomes active), the receptive field tells you     which area of the original input image caused it to react.
+
+## Why is Receptive Field Important in Vision Tasks?
+
+-   Captures Context: Larger RFs help the network understand spatial               relationships, objects, and background context.
+
+-   Design Consideration: Helps decide kernel sizes, number of layers, and         strides when building CNN architectures.
+
+-   Segmentation Tasks: Accurate pixel-wise predictions require balancing fine     details (small RF) and global context (large RF).
+
+-   Deeper Layers = Larger RF: But also need to manage loss of spatial             precision.
+
+
+## Receptive Field Growth in CNNs
+
+```text
+[Input Image]
+   ↓
+[Conv Layer 1] → small receptive field (e.g., 3×3)
+   ↓
+[Conv Layer 2] → medium receptive field (e.g., 7×7)
+   ↓
+[Conv Layer 3] → large receptive field (e.g., 15×15)
+
+```
+------------------------------------------------------------------------
+
+# Visualizing Receptive Fields in CNNs
+
+## Techniques for Visualizing Receptive Fields
+
+  Method |  Explanation
+  Gradient-Based | Computes gradients of output w.r.t. input pixels to see                        which parts affect activation.
+  
+  Backpropagation | Tracks how changes in pixel values affect activations                          through layers.
+  
+  Occlusion Mapping | Slides a gray patch over parts of the input image and                          sees how output changes.
+
+## Increasing Receptive Fields Across Layers
+
+- As you go deeper into the CNN, the receptive field increases.
+
+- Early layers capture edges and textures (small RFs).
+
+- Deeper layers capture shapes, parts, and full objects (large RFs).
+
+------------------------------------------------------------------------
+
+# Application to Lane Detection
+
+## Optimizing the Receptive Field
+
+- Kernel Sizes:
+
+Explanation: Kernel size controls the area that each filter covers. A larger kernel size increases the receptive field, allowing the model to capture more context in the image.
+
+Example: Using a 5x5 kernel instead of a 3x3 kernel allows the model to capture broader information, improving its ability to detect lane markings over longer distances.
+
+- Stride:
+
+Explanation: Stride determines how much the filter moves over the input image. Increasing the stride reduces the spatial resolution of the feature maps but increases the effective receptive field.
+
+Example: By using a stride of 2, instead of 1, we can increase the receptive field while reducing the computation required, which is helpful for detecting lanes over long stretches of road.
+
+- Dilation:
+
+Explanation: Dilation expands the filter by spacing the elements, which increases the receptive field without increasing the number of parameters. This allows the network to capture larger contextual information.
+
+Example: A dilated 3x3 convolution can help capture more context compared to a standard 3x3 filter, enabling the model to detect lane markings that span across larger sections of the image.
+
+------------------------------------------------------------------------
 
 #### Image Classification vs Semantic Segmentation  {.smaller}
 
